@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tarjeta Médica QR</title>
+</head>
+<body>
+  <h2>Acceso a Tarjeta Médica</h2>
+  
+  <label for="pin">Ingrese PIN (5 dígitos):</label>
+  <input type="text" id="pin" maxlength="5">
+  <button id="btnVer">Ver datos</button>
+
+  <div id="resultado"></div>
+
+  <!-- SDK de Firebase que copiaste desde Hosting -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "tarjetamedicaqr.firebaseapp.com",
+      projectId: "tarjetamedicaqr",
+      storageBucket: "tarjetamedicaqr.appspot.com",
+      messagingSenderId: "XXXXXX",
+      appId: "XXXXXX"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("btnVer").addEventListener("click", async () => {
+      const pin = document.getElementById("pin").value;
+      const docRef = doc(db, "tarjetas", pin);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const datos = docSnap.data();
+        document.getElementById("resultado").innerHTML = `
+          <p><b>Nombre:</b> ${datos.nombreCompleto}</p>
+          <p><b>Contacto Emergencia:</b> ${datos.contactoEmergencia}</p>
+          <p><b>Grupo sanguíneo:</b> ${datos.grupoSanguineo}</p>
+          <p><b>Alergias:</b> ${datos.alergias}</p>
+          <p><b>Enfermedades:</b> ${datos.enfermedadesPreexistentes}</p>
+          <p><b>Medicación:</b> ${datos.medicacion}</p>
+          <p><b>Observaciones:</b> ${datos.observacion1}, ${datos.observacion2}, ${datos.observacion3}</p>
+        `;
+      } else {
+        document.getElementById("resultado").innerHTML = "<p>PIN no encontrado</p>";
+      }
+    });
+  </script>
+</body>
+</html>
